@@ -1,23 +1,9 @@
-# Compilers Construction Course - Universidad del Valle de Guatemala (2024)
+# Laboratorios de la clase de Compiladores 2024
 
-Welcome to the Compilers Construction Course repository for the second semester of 2024 at Universidad del Valle de Guatemala. This repository will be used to share important documents, laboratory exercises, and code examples that will aid in your understanding of compiler construction.
+## Descripción
 
-## Professors
+En este repositorio se incluyen los laboratorios de la clase de Compiladores 2024, de la carrera de Ingeniería en Ciencias de la Computación y Tecnologías de la Información de la Universidad del Valle de Guatemala.
 
-- **Gabriel Brolo**
-- **Bidkar Pojoy**
+## Recomendaciones
 
-## Course Information
-
-This repository includes:
-
-- **Laboratory Exercises**: Detailed lab instructions and starter code.
-- **Important Code**: Examples and references for various topics covered in the course.
-- **Documents**: Laboratory descriptions, project guidelines, etc.; other relevant course materials.
-
-## How to Use This Repository
-
-1. **Clone the Repository**: 
-   ```bash
-   git clone https://github.com/gbrolo/compilers-2024-students.git
-
+Se recomienda tener Docker instalado, ya que facilita la ejecución de los laboratorios al contener los laboratorios Dockerfiles, de los cuales poder crear los ambientes necesario para ejecutarlos.
