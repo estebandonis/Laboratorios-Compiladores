@@ -15,8 +15,8 @@ int yylex();
 %type<num> assignment
 
 %right '='
-%right '*' '/'
-%right '+' '-'
+%left '+' '-'
+%left '*' '/'
 
 %%
 
