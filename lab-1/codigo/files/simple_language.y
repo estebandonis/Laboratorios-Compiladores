@@ -15,16 +15,16 @@ int yylex();
 %type<num> assignment
 
 %right '='
-%left '+' '-'
-%left '*' '/'
+%right '*' '/'
+%right '+' '-'
 
 %%
 
 program: statement_list
         ;
 
-statement_list: statement '\n'         // Added newline token handling
-    | statement_list statement '\n'   // Added newline token handling
+statement_list: statement '\n'
+    | statement_list statement '\n'
     ;
 
 statement: assignment
@@ -32,10 +32,26 @@ statement: assignment
     ;
 
 assignment: ID '=' expression
-    { 
-        printf("Assign %s = %d\n", $1->c_str(), $3); 
-        $$ = vars[*$1] = $3; 
+    {
+        printf("Asignado %s = %d\n", $1->c_str(), $3);
+        $$ = vars[*$1] = $3;
         delete $1;
+    }
+    | ID '='
+    {
+        yyerror("No se puede asignar un valor nulo");
+    }
+    | NUMBER '=' expression
+    {
+        yyerror("No se puede asignar un numero como nombre de variable");
+    }
+    | ID NUMBER
+    {
+        yyerror("No se incluyo el signo de igualdad");
+    }
+    | '=' expression
+    {
+        yyerror("No se incluyo el nombre de la variable");
     }
     ;
 
@@ -44,7 +60,8 @@ expression: NUMBER                  { $$ = $1; }
     | expression '+' expression     { $$ = $1 + $3; }
     | expression '-' expression     { $$ = $1 - $3; }
     | expression '*' expression     { $$ = $1 * $3; }
-    | expression '/' expression     { $$ = $1 / $3; }
+    | expression '/' expression     { if ($3 != 0) { $$ = $1 / $3; } else { yyerror("No se puede dividir dentro de cero"); } }
+    | expression expression
     ;
 
 %%

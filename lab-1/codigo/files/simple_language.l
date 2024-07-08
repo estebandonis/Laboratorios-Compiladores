@@ -14,9 +14,9 @@
 "/"                     { return '/'; }
 "="                     { return '='; }
 ":"                     { return ':'; }
-[ \t]                   ;  // skip whitespace
-\n                      { return '\n'; } // recognize newlines
-.                       { return yytext[0]; } /* ignore all the rest */
+[ \t]                   ;
+\n                      { return '\n'; }
+.                       { fprintf(stderr, "Se ha encontrado un token desconocido '%s'\n", yytext); }
 
 %%
 
