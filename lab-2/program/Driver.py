@@ -11,34 +11,65 @@ class MyVisitor(MiniLangVisitor):
         self.res={}
 
     def visitProg(self, ctx: MiniLangParser.ProgContext):
-        print("Prog")
+        return self.visitChildren(ctx)
 
     def visitPrintExpr(self, ctx: MiniLangParser.PrintExprContext):
-        print("PrintExpr")
+        return self.visitChildren(ctx)
     
     def visitAssign(self, ctx: MiniLangParser.AssignContext):
-        print("Assign")
+        print("Assign: ", ctx.ID().getText() + " = " + ctx.expr().getText())
+        return self.visitChildren(ctx)
     
     def visitBlank(self, ctx: MiniLangParser.BlankContext):
-        print("Blank")
+        return self.visitChildren(ctx)
     
     def visitPrint(self, ctx: MiniLangParser.PrintContext):
-        print("Print")
+        return self.visitChildren(ctx)
     
     def visitParens(self, ctx: MiniLangParser.ParensContext):
         print("Parens")
+        return self.visitChildren(ctx)
     
     def visitMulDiv(self, ctx: MiniLangParser.MulDivContext):
         print("MulDiv")
+        print(ctx.getText())
+        num1 = self.visit(ctx.expr(0))
+        print("num1",num1)
+        num2 = self.visit(ctx.expr(1))
+        print("num2",num2)
+
+        if ctx.MUL() is not None:
+            result = num1 * num2
+        else:
+            result = num1 / num2
+        print("result",result)
+        return result
 
     def visitAddSub(self, ctx: MiniLangParser.AddSubContext):
         print("AddSub")
+        print(ctx.getText())
+        num1 = self.visit(ctx.expr(0))
+        print("num1",num1)
+        num2 = self.visit(ctx.expr(1))
+        print("num2",num2)
+
+        if ctx.ADD() is not None:
+            result = num1 + num2
+        else:
+            result = num1 - num2
+        print("result",result)
+        return result
     
     def visitId(self, ctx: MiniLangParser.IdContext):
-        print("Id")
+        varName = ctx.getText()
+        if varName in self.symbolTable:
+            return self.symbolTable[varName]
+        else:
+            print(f"Undefined variable {varName}")
+            return None
     
     def visitInt(self, ctx: MiniLangParser.IntContext):
-        print("Int")
+        return int(ctx.getText())
 
 
 def main(argv):
@@ -47,6 +78,7 @@ def main(argv):
     stream = CommonTokenStream(lexer)
     parser = MiniLangParser(stream)
     tree = parser.prog()  # We are using 'prog' since this is the starting rule based on our MiniLang grammar, yay!
+    print(tree.toStringTree(recog=parser))
 
     visitor = MyVisitor()
     visitor.visit(tree)
