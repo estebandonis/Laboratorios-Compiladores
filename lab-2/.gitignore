@@ -1,2 +1,4 @@
 configs
 program/__pycache__
+program/.antlr
+program/.DS_Store

@@ -1,1 +1,4 @@
-x = hola
+x = 1
+
+print(x)
+

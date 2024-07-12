@@ -5,6 +5,7 @@ prog:   stat+ ;
 stat:   expr NEWLINE                 # printExpr
     |   ID '=' expr NEWLINE          # assign
     |   NEWLINE                      # blank
+    |   'print' '(' expr ')' NEWLINE # print
     ;
 
 expr:   expr ('*'|'/') expr          # MulDiv
