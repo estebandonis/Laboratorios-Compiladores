@@ -23,3 +23,6 @@ ID  : [a-zA-Z]+ ; // match identifiers
 INT : [0-9]+ ; // match integers
 NEWLINE:'\r'? '\n' ; // return newlines to parser (is end-statement signal)
 WS  : [ \t]+ -> skip ; // toss out whitespace
+
+// Regla para comentarios de una sola línea
+LINE_COMMENT : '//' ~[\r\n]* -> skip ;

@@ -1,0 +1,6 @@
+// Este es un comentario
+a = 3 + 5
+print(a)
+// Otro comentario
+b = (a * 2) - (4 / 2)
+print(b)
