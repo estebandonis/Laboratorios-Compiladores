@@ -31,19 +31,15 @@ class MyVisitor(MiniLangVisitor):
         print(self.res)
 
     def visitParens(self, ctx: MiniLangParser.ParensContext):
-        result = self.visit(ctx.expr())
-        print(f"Parens: ({ctx.expr().getText()}) -> {result}")
-        return result
+        return self.visit(ctx.expr())
 
     def visitMulDiv(self, ctx: MiniLangParser.MulDivContext):
         left = self.visit(ctx.expr(0))
         right = self.visit(ctx.expr(1))
         if ctx.children[1].symbol.type == MiniLangParser.MUL:
             result = left * right
-            print(f"Mul: {left} * {right} = {result}")
         else:
             result = left / right
-            print(f"Div: {left} / {right} = {result}")
         return result
 
     def visitAddSub(self, ctx: MiniLangParser.AddSubContext):
@@ -51,28 +47,45 @@ class MyVisitor(MiniLangVisitor):
         right = self.visit(ctx.expr(1))
         if ctx.children[1].symbol.type == MiniLangParser.ADD:
             result = left + right
-            print(f"Add: {left} + {right} = {result}")
         else:
             result = left - right
-            print(f"Sub: {left} - {right} = {result}")
         return result
+
+    def visitComparison(self, ctx: MiniLangParser.ComparisonContext):
+        left = self.visit(ctx.expr(0))
+        right = self.visit(ctx.expr(1))
+        op = ctx.children[1].symbol.type
+
+        if op == MiniLangParser.EQ:
+            return left == right
+        elif op == MiniLangParser.NEQ:
+            return left != right
+        elif op == MiniLangParser.LT:
+            return left < right
+        elif op == MiniLangParser.GT:
+            return left > right
+        elif op == MiniLangParser.LEQ:
+            return left <= right
+        elif op == MiniLangParser.GEQ:
+            return left >= right
+        else:
+            raise ValueError(f"Operador de comparación desconocido: {ctx.getText()}")
 
     def visitId(self, ctx: MiniLangParser.IdContext):
         id_name = ctx.ID().getText()
         if id_name in self.variables:
-            result = self.variables[id_name]
-            print(f"Id: {id_name} = {result}")
-            return result
+            return self.variables[id_name]
         else:
             raise ValueError(f"Variable '{id_name}' no está definida.")
 
     def visitInt(self, ctx: MiniLangParser.IntContext):
-        result = int(ctx.INT().getText())
-        print(f"Int: {result}")
-        return result
+        return int(ctx.INT().getText())
 
 def main(argv):
-    input_stream = FileStream(argv[1])
+    input_file = argv[1]
+    with open(input_file, encoding='utf-8') as file:
+        input_stream = InputStream(file.read())
+    
     lexer = MiniLangLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = MiniLangParser(stream)
@@ -86,6 +99,7 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv)
+
 
 
 
