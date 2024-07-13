@@ -84,13 +84,16 @@ class MyVisitor(MiniLangVisitor):
     def visitIfStatement(self, ctx: MiniLangParser.IfStatementContext):
         condition = self.visit(ctx.expr())
         if condition:
-            self.visit(ctx.stat(0))  # Ejecuta el bloque 'then'
-        elif ctx.stat(1) is not None:
-            self.visit(ctx.stat(1))  # Ejecuta el bloque 'else' si existe
+            for stat in ctx.stat()[:len(ctx.stat()) - 1]:
+                self.visit(stat)
+        elif ctx.ELSE() is not None:
+            for stat in ctx.stat()[len(ctx.stat()) - 1:]:
+                self.visit(stat)
 
     def visitWhileStatement(self, ctx: MiniLangParser.WhileStatementContext):
         while self.visit(ctx.expr()):
-            self.visit(ctx.stat())
+            for stat in ctx.stat():
+                self.visit(stat)
 
 def main(argv):
     input_file = argv[1]
