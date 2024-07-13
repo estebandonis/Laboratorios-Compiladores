@@ -8,48 +8,105 @@ class MyVisitor(MiniLangVisitor):
 
     def __init__(self):
         super(MyVisitor, self).__init__()
-        self.res={}
+        self.variables = {}  # Para almacenar variables asignadas
+        self.res = None
 
     def visitProg(self, ctx: MiniLangParser.ProgContext):
-        print("Prog")
+        for child in ctx.stat():
+            self.visit(child)
 
     def visitPrintExpr(self, ctx: MiniLangParser.PrintExprContext):
-        print("PrintExpr")
-    
+        self.res = self.visit(ctx.expr())
+
     def visitAssign(self, ctx: MiniLangParser.AssignContext):
-        print("Assign")
-    
+        id_name = ctx.ID().getText()
+        value = self.visit(ctx.expr())
+        self.variables[id_name] = value
+
     def visitBlank(self, ctx: MiniLangParser.BlankContext):
-        print("Blank")
-    
+        pass
+
     def visitPrint(self, ctx: MiniLangParser.PrintContext):
-        print("Print")
-    
+        self.res = self.visit(ctx.expr())
+        print(self.res)
+
     def visitParens(self, ctx: MiniLangParser.ParensContext):
-        print("Parens")
-    
+        return self.visit(ctx.expr())
+
     def visitMulDiv(self, ctx: MiniLangParser.MulDivContext):
-        print("MulDiv")
+        left = self.visit(ctx.expr(0))
+        right = self.visit(ctx.expr(1))
+        if ctx.children[1].symbol.type == MiniLangParser.MUL:
+            result = left * right
+        else:
+            result = left / right
+        return result
 
     def visitAddSub(self, ctx: MiniLangParser.AddSubContext):
-        print("AddSub")
-    
-    def visitId(self, ctx: MiniLangParser.IdContext):
-        print("Id")
-    
-    def visitInt(self, ctx: MiniLangParser.IntContext):
-        print("Int")
+        left = self.visit(ctx.expr(0))
+        right = self.visit(ctx.expr(1))
+        if ctx.children[1].symbol.type == MiniLangParser.ADD:
+            result = left + right
+        else:
+            result = left - right
+        return result
 
+    def visitComparison(self, ctx: MiniLangParser.ComparisonContext):
+        left = self.visit(ctx.expr(0))
+        right = self.visit(ctx.expr(1))
+        op = ctx.children[1].symbol.type
+
+        if op == MiniLangParser.EQ:
+            return left == right
+        elif op == MiniLangParser.NEQ:
+            return left != right
+        elif op == MiniLangParser.LT:
+            return left < right
+        elif op == MiniLangParser.GT:
+            return left > right
+        elif op == MiniLangParser.LEQ:
+            return left <= right
+        elif op == MiniLangParser.GEQ:
+            return left >= right
+        else:
+            raise ValueError(f"Operador de comparación desconocido: {ctx.getText()}")
+
+    def visitId(self, ctx: MiniLangParser.IdContext):
+        id_name = ctx.ID().getText()
+        if id_name in self.variables:
+            return self.variables[id_name]
+        else:
+            raise ValueError(f"Variable '{id_name}' no está definida.")
+
+    def visitInt(self, ctx: MiniLangParser.IntContext):
+        return int(ctx.INT().getText())
+
+    def visitIfStatement(self, ctx: MiniLangParser.IfStatementContext):
+        condition = self.visit(ctx.expr())
+        if condition:
+            self.visit(ctx.stat(0))  # Ejecuta el bloque 'then'
+        elif ctx.stat(1) is not None:
+            self.visit(ctx.stat(1))  # Ejecuta el bloque 'else' si existe
+
+    def visitWhileStatement(self, ctx: MiniLangParser.WhileStatementContext):
+        while self.visit(ctx.expr()):
+            self.visit(ctx.stat())
 
 def main(argv):
-    input_stream = FileStream(argv[1])
+    input_file = argv[1]
+    with open(input_file, encoding='utf-8') as file:
+        input_stream = InputStream(file.read())
+    
     lexer = MiniLangLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = MiniLangParser(stream)
-    tree = parser.prog()  # We are using 'prog' since this is the starting rule based on our MiniLang grammar, yay!
+    tree = parser.prog()  # Analizar la entrada utilizando la regla 'prog'
 
     visitor = MyVisitor()
     visitor.visit(tree)
+
+    if visitor.res is not None:
+        print(f"Resultado total: {visitor.res}")
 
 if __name__ == '__main__':
     main(sys.argv)
