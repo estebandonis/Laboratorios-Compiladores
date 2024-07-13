@@ -81,6 +81,17 @@ class MyVisitor(MiniLangVisitor):
     def visitInt(self, ctx: MiniLangParser.IntContext):
         return int(ctx.INT().getText())
 
+    def visitIfStatement(self, ctx: MiniLangParser.IfStatementContext):
+        condition = self.visit(ctx.expr())
+        if condition:
+            self.visit(ctx.stat(0))  # Ejecuta el bloque 'then'
+        elif ctx.stat(1) is not None:
+            self.visit(ctx.stat(1))  # Ejecuta el bloque 'else' si existe
+
+    def visitWhileStatement(self, ctx: MiniLangParser.WhileStatementContext):
+        while self.visit(ctx.expr()):
+            self.visit(ctx.stat())
+
 def main(argv):
     input_file = argv[1]
     with open(input_file, encoding='utf-8') as file:
@@ -99,7 +110,3 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv)
-
-
-
-
