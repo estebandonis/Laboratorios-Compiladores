@@ -4,8 +4,8 @@ prog:   stat+ ;
 
 stat:   expr NEWLINE                 # printExpr
     |   ID '=' expr NEWLINE          # assign
-    |   'if' expr 'then' stat ('else' stat)? 'endif' NEWLINE  # ifStatement
-    |   'while' expr 'do' stat 'endwhile' NEWLINE             # whileStatement
+    |   'if' expr 'then' stat+ ('else' stat+)? 'endif' NEWLINE  # ifStatement
+    |   'while' expr 'do' stat+ 'endwhile' NEWLINE             # whileStatement
     |   NEWLINE                      # blank
     |   'print' '(' expr ')' NEWLINE # print
     ;
