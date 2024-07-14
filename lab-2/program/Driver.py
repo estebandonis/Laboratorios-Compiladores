@@ -9,6 +9,7 @@ class MyVisitor(MiniLangVisitor):
     def __init__(self):
         super(MyVisitor, self).__init__()
         self.variables = {}  # Para almacenar variables asignadas
+        self.functions = {}  # Para almacenar funciones definidas por el usuario
         self.res = None
 
     def visitProg(self, ctx: MiniLangParser.ProgContext):
@@ -94,6 +95,34 @@ class MyVisitor(MiniLangVisitor):
         while self.visit(ctx.expr()):
             for stat in ctx.stat():
                 self.visit(stat)
+
+    def visitFuncDef(self, ctx: MiniLangParser.FuncDefContext):
+        func_name = ctx.ID(0).getText()
+        params = [param.getText() for param in ctx.ID()[1:]]
+        self.functions[func_name] = (params, ctx.stat())
+
+    def visitFuncCall(self, ctx: MiniLangParser.FuncCallContext):
+        func_name = ctx.ID().getText()
+        if func_name not in self.functions:
+            raise ValueError(f"Función '{func_name}' no está definida.")
+        
+        func_params, func_body = self.functions[func_name]
+        if len(func_params) != len(ctx.expr()):
+            raise ValueError(f"La cantidad de argumentos no coincide para la función '{func_name}'.")
+        
+        # Guardar el estado actual de las variables
+        current_variables = self.variables.copy()
+        
+        # Asignar los argumentos a los parámetros de la función
+        for param, arg in zip(func_params, ctx.expr()):
+            self.variables[param] = self.visit(arg)
+        
+        # Ejecutar el cuerpo de la función
+        for stat in func_body:
+            self.visit(stat)
+        
+        # Restaurar el estado de las variables
+        self.variables = current_variables
 
 def main(argv):
     input_file = argv[1]
