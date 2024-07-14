@@ -1,0 +1,27 @@
+func subtract(a, b)
+    print(a - b)
+endfunc
+
+func multiply(a, b)
+    print(a * b)
+endfunc
+
+func divide(a, b)
+    if b != 0 then
+        print(a / b)
+    else
+        print("Error: División por cero")
+    endif
+endfunc
+
+func sum(a, b)
+    print(a + b)
+endfunc
+
+x = 20
+y = 5
+
+subtract(x, y)
+multiply(x, y)
+divide(x, y)
+sum(x, y)
