@@ -37,40 +37,56 @@ class MyVisitor(MiniLangVisitor):
     def visitMulDiv(self, ctx: MiniLangParser.MulDivContext):
         left = self.visit(ctx.expr(0))
         right = self.visit(ctx.expr(1))
-        if ctx.children[1].symbol.type == MiniLangParser.MUL:
-            result = left * right
+        if isinstance(left, int) and isinstance(right, int):
+            if ctx.children[1].symbol.type == MiniLangParser.MUL:
+                result = left * right
+            else:
+                result = left / right
+            return result
         else:
-            result = left / right
-        return result
+            raise ValueError("Invalid types for multiplication/division")
 
     def visitAddSub(self, ctx: MiniLangParser.AddSubContext):
         left = self.visit(ctx.expr(0))
         right = self.visit(ctx.expr(1))
-        if ctx.children[1].symbol.type == MiniLangParser.ADD:
-            result = left + right
+        if isinstance(left, int) and isinstance(right, int):
+            if ctx.children[1].symbol.type == MiniLangParser.ADD:
+                result = left + right
+            else:
+                result = left - right
+            return result
+        elif isinstance(left, str) and isinstance(right, str) and ctx.children[1].symbol.type == MiniLangParser.ADD:
+            return left + right
         else:
-            result = left - right
-        return result
+            raise ValueError("Invalid types for addition/subtraction")
 
     def visitComparison(self, ctx: MiniLangParser.ComparisonContext):
         left = self.visit(ctx.expr(0))
         right = self.visit(ctx.expr(1))
         op = ctx.children[1].symbol.type
 
-        if op == MiniLangParser.EQ:
-            return left == right
-        elif op == MiniLangParser.NEQ:
-            return left != right
-        elif op == MiniLangParser.LT:
-            return left < right
-        elif op == MiniLangParser.GT:
-            return left > right
-        elif op == MiniLangParser.LEQ:
-            return left <= right
-        elif op == MiniLangParser.GEQ:
-            return left >= right
-        else:
-            raise ValueError(f"Operador de comparación desconocido: {ctx.getText()}")
+        if isinstance(left, int) and isinstance(right, int):
+            if op == MiniLangParser.EQ:
+                return left == right
+            elif op == MiniLangParser.NEQ:
+                return left != right
+            elif op == MiniLangParser.LT:
+                return left < right
+            elif op == MiniLangParser.GT:
+                return left > right
+            elif op == MiniLangParser.LEQ:
+                return left <= right
+            elif op == MiniLangParser.GEQ:
+                return left >= right
+            else:
+                raise ValueError(f"Operador de comparación desconocido: {ctx.getText()}")
+        elif isinstance(left, str) and isinstance(right, str):
+            if op == MiniLangParser.EQ:
+                return left == right
+            elif op == MiniLangParser.NEQ:
+                return left != right
+            else:
+                raise ValueError("Invalid types for comparison")
 
     def visitId(self, ctx: MiniLangParser.IdContext):
         id_name = ctx.ID().getText()
@@ -81,6 +97,9 @@ class MyVisitor(MiniLangVisitor):
 
     def visitInt(self, ctx: MiniLangParser.IntContext):
         return int(ctx.INT().getText())
+
+    def visitString(self, ctx: MiniLangParser.StringContext):
+        return ctx.STRING().getText().strip('"')
 
     def visitIfStatement(self, ctx: MiniLangParser.IfStatementContext):
         condition = self.visit(ctx.expr())
