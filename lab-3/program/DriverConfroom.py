@@ -15,7 +15,7 @@ class ConfRoomSchedulerErrorListener(ErrorListener):
 
 class ConfRoomScheduler(ConfRoomSchedulerListener):
     MAX_RESERVATION_HOURS = 4
-    
+
     def __init__(self, reservations_file='reservations.pkl'):
         self.reservations_file = reservations_file
         self.reservations = self.load_reservations()
@@ -97,6 +97,15 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
         except ValueError:
             return False
 
+    def list_reservations(self):
+        if not self.reservations:
+            print("No reservations found.")
+        else:
+            print("Existing reservations:")
+            for (id, date, start_time, end_time), (requester, description) in self.reservations.items():
+                print(f"- {id} on {date} from {start_time} to {end_time} by {requester} with description: {description}")
+
+
 def main(argv):
     if len(argv) < 2:
         print("Usage: python3 DriverConfroom.py <input_file>")
@@ -121,6 +130,9 @@ def main(argv):
     scheduler = ConfRoomScheduler()
     walker = ParseTreeWalker()
     walker.walk(scheduler, tree)
+
+    # After processing commands, list existing reservations
+    scheduler.list_reservations()
 
 if __name__ == '__main__':
     main(sys.argv)
