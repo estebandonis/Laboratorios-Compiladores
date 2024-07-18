@@ -1,12 +1,25 @@
 import sys
+import pickle
 from antlr4 import *
 from ConfRoomSchedulerLexer import ConfRoomSchedulerLexer
 from ConfRoomSchedulerParser import ConfRoomSchedulerParser
 from ConfRoomSchedulerListener import ConfRoomSchedulerListener
 
 class ConfRoomScheduler(ConfRoomSchedulerListener):
-    def __init__(self):
-        self.reservations = {}
+    def __init__(self, reservations_file='reservations.pkl'):
+        self.reservations_file = reservations_file
+        self.reservations = self.load_reservations()
+
+    def load_reservations(self):
+        try:
+            with open(self.reservations_file, 'rb') as f:
+                return pickle.load(f)
+        except FileNotFoundError:
+            return {}
+
+    def save_reservations(self):
+        with open(self.reservations_file, 'wb') as f:
+            pickle.dump(self.reservations, f)
 
     def enterReserveStat(self, ctx: ConfRoomSchedulerParser.ReserveStatContext):
         id = ctx.reserve().ID().getText()
@@ -14,6 +27,7 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
         start_time = ctx.reserve().TIME(0).getText()
         end_time = ctx.reserve().TIME(1).getText()
         self.reservations[(id, date, start_time, end_time)] = 'RESERVED'
+        self.save_reservations()
         print(f"Reserved: {id} on {date} from {start_time} to {end_time}")
 
     def enterCancelStat(self, ctx: ConfRoomSchedulerParser.CancelStatContext):
@@ -23,6 +37,7 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
         end_time = ctx.cancel().TIME(1).getText()
         if (id, date, start_time, end_time) in self.reservations:
             del self.reservations[(id, date, start_time, end_time)]
+            self.save_reservations()
             print(f"Cancelled: {id} on {date} from {start_time} to {end_time}")
         else:
             print(f"No reservation found to cancel: {id} on {date} from {start_time} to {end_time}")
