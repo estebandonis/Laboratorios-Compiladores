@@ -35,11 +35,13 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
         start_time = ctx.reserve().TIME(0).getText()
         end_time = ctx.reserve().TIME(1).getText()
         requester = ctx.reserve().ID(1).getText()
+        description = ctx.reserve().STRING().getText() if ctx.reserve().STRING() else ""
+
         if self.is_valid_time(start_time, end_time):
             if not self.is_overlapping(id, date, start_time, end_time):
-                self.reservations[(id, date, start_time, end_time)] = requester
+                self.reservations[(id, date, start_time, end_time)] = (requester, description)
                 self.save_reservations()
-                print(f"Reserved: {id} on {date} from {start_time} to {end_time} by {requester}")
+                print(f"Reserved: {id} on {date} from {start_time} to {end_time} by {requester} with description: {description}")
             else:
                 print(f"Error: Reservation overlaps with an existing reservation for {id} on {date} from {start_time} to {end_time}")
         else:
