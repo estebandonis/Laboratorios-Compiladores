@@ -14,6 +14,8 @@ class ConfRoomSchedulerErrorListener(ErrorListener):
         raise Exception(f"Syntax error at line {line}, column {column}: {msg}")
 
 class ConfRoomScheduler(ConfRoomSchedulerListener):
+    MAX_RESERVATION_HOURS = 4
+    
     def __init__(self, reservations_file='reservations.pkl'):
         self.reservations_file = reservations_file
         self.reservations = self.load_reservations()
@@ -39,9 +41,13 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
 
         if self.is_valid_time(start_time, end_time):
             if not self.is_overlapping(id, date, start_time, end_time):
-                self.reservations[(id, date, start_time, end_time)] = (requester, description)
-                self.save_reservations()
-                print(f"Reserved: {id} on {date} from {start_time} to {end_time} by {requester} with description: {description}")
+                # Validación de duración máxima permitida
+                if self.is_within_max_duration(start_time, end_time):
+                    self.reservations[(id, date, start_time, end_time)] = (requester, description)
+                    self.save_reservations()
+                    print(f"Reserved: {id} on {date} from {start_time} to {end_time} by {requester} with description: {description}")
+                else:
+                    print(f"Error: Reservation duration exceeds maximum allowed ({self.MAX_RESERVATION_HOURS} hours): {id} on {date} from {start_time} to {end_time} by {requester}")
             else:
                 print(f"Error: Reservation overlaps with an existing reservation for {id} on {date} from {start_time} to {end_time}")
         else:
@@ -80,6 +86,16 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
                 if not (end_time <= res_start or start_time >= res_end):
                     return True
         return False
+    
+    def is_within_max_duration(self, start_time, end_time):
+        try:
+            start_hour, start_minute = map(int, start_time.split(':'))
+            end_hour, end_minute = map(int, end_time.split(':'))
+            start_minutes = start_hour * 60 + start_minute
+            end_minutes = end_hour * 60 + end_minute
+            return (end_minutes - start_minutes) <= self.MAX_RESERVATION_HOURS * 60
+        except ValueError:
+            return False
 
 def main(argv):
     if len(argv) < 2:
