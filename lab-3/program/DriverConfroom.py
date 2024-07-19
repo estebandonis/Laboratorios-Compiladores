@@ -33,34 +33,36 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
 
     def enterReserveStat(self, ctx: ConfRoomSchedulerParser.ReserveStatContext):
         id = ctx.reserve().ID(0).getText()
+        tipo = ctx.reserve().STRING(0).getText()
         date = ctx.reserve().DATE().getText()
         start_time = ctx.reserve().TIME(0).getText()
         end_time = ctx.reserve().TIME(1).getText()
         requester = ctx.reserve().ID(1).getText()
-        description = ctx.reserve().STRING().getText() if ctx.reserve().STRING() else ""
+        description = ctx.reserve().STRING(1).getText() if ctx.reserve().STRING() else ""
 
         if self.is_valid_time(start_time, end_time):
-            if not self.is_overlapping(id, date, start_time, end_time):
+            if not self.is_overlapping(id, date, start_time, end_time, tipo):
                 # Validación de duración máxima permitida
                 if self.is_within_max_duration(start_time, end_time):
-                    self.reservations[(id, date, start_time, end_time)] = (requester, description)
+                    self.reservations[(id, date, start_time, end_time, tipo)] = (requester, description)
                     self.save_reservations()
                     print(f"Reserved: {id} on {date} from {start_time} to {end_time} by {requester} with description: {description}")
                 else:
                     print(f"Error: Reservation duration exceeds maximum allowed ({self.MAX_RESERVATION_HOURS} hours): {id} on {date} from {start_time} to {end_time} by {requester}")
             else:
-                print(f"Error: Reservation overlaps with an existing reservation for {id} on {date} from {start_time} to {end_time}")
+                print(f"Error: Reservation overlaps with an existing reservation in {tipo} on {date} from {start_time} to {end_time}")
         else:
             print(f"Error: Invalid time range '{start_time} to {end_time}' for reservation on {date} by {requester}")
 
     def enterCancelStat(self, ctx: ConfRoomSchedulerParser.CancelStatContext):
         id = ctx.cancel().ID(0).getText()
+        tipo = ctx.cancel().STRING().getText()
         date = ctx.cancel().DATE().getText()
         start_time = ctx.cancel().TIME(0).getText()
         end_time = ctx.cancel().TIME(1).getText()
         requester = ctx.cancel().ID(1).getText()
-        if (id, date, start_time, end_time) in self.reservations:
-            del self.reservations[(id, date, start_time, end_time)]
+        if (id, date, start_time, end_time, tipo) in self.reservations:
+            del self.reservations[(id, date, start_time, end_time, tipo)]
             self.save_reservations()
             print(f"Cancelled: {id} on {date} from {start_time} to {end_time} by {requester}")
         else:
@@ -80,9 +82,9 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
         except ValueError:
             return False
 
-    def is_overlapping(self, id, date, start_time, end_time):
-        for (res_id, res_date, res_start, res_end) in self.reservations:
-            if id == res_id and date == res_date:
+    def is_overlapping(self, id, date, start_time, end_time, tipo):
+        for (res_id, res_date, res_start, res_end, res_tipo) in self.reservations:
+            if date == res_date and tipo == res_tipo:
                 if not (end_time <= res_start or start_time >= res_end):
                     return True
         return False
@@ -102,8 +104,8 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
             print("No reservations found.")
         else:
             print("Existing reservations:")
-            for (id, date, start_time, end_time), (requester, description) in self.reservations.items():
-                print(f"- {id} on {date} from {start_time} to {end_time} by {requester} with description: {description}")
+            for (id, date, start_time, end_time, tipo), (requester, description) in self.reservations.items():
+                print(f"- {id} in {tipo} on {date} from {start_time} to {end_time} by {requester} with description: {description}")
 
 
 def main(argv):
@@ -112,6 +114,11 @@ def main(argv):
         return
 
     input_file = argv[1]
+
+    # NewReservations = {}
+
+    # with open('reservations.pkl', 'wb') as f:
+    #     pickle.dump(NewReservations, f)
 
     try:
         input_stream = FileStream(input_file)
