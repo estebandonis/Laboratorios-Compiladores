@@ -35,6 +35,15 @@ class ConfRoomSchedulerListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by ConfRoomSchedulerParser#reprogramStat.
+    def enterReprogramStat(self, ctx:ConfRoomSchedulerParser.ReprogramStatContext):
+        pass
+
+    # Exit a parse tree produced by ConfRoomSchedulerParser#reprogramStat.
+    def exitReprogramStat(self, ctx:ConfRoomSchedulerParser.ReprogramStatContext):
+        pass
+
+
     # Enter a parse tree produced by ConfRoomSchedulerParser#blank.
     def enterBlank(self, ctx:ConfRoomSchedulerParser.BlankContext):
         pass
@@ -59,6 +68,15 @@ class ConfRoomSchedulerListener(ParseTreeListener):
 
     # Exit a parse tree produced by ConfRoomSchedulerParser#cancel.
     def exitCancel(self, ctx:ConfRoomSchedulerParser.CancelContext):
+        pass
+
+
+    # Enter a parse tree produced by ConfRoomSchedulerParser#reprogram.
+    def enterReprogram(self, ctx:ConfRoomSchedulerParser.ReprogramContext):
+        pass
+
+    # Exit a parse tree produced by ConfRoomSchedulerParser#reprogram.
+    def exitReprogram(self, ctx:ConfRoomSchedulerParser.ReprogramContext):
         pass
 
 

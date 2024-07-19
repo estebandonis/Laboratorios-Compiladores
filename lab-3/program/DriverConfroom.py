@@ -68,6 +68,50 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
         else:
             print(f"No reservation found to cancel: {id} on {date} from {start_time} to {end_time}")
 
+    def enterReprogramStat(self, ctx: ConfRoomSchedulerParser.ReprogramStatContext):
+        id = ctx.reprogram().ID(0).getText()
+        requester = ctx.reprogram().ID(1).getText()
+        newDate = ctx.reprogram().DATE().getText()
+        newStart_time = ctx.reprogram().TIME(0).getText()
+        newEnd_time = ctx.reprogram().TIME(1).getText()
+        newTipo = ctx.reprogram().STRING().getText() if ctx.reprogram().STRING() else ""
+
+        description = "";
+        oldDate = "";
+        oldStart_time = "";
+        oldEnd_time = "";
+        oldTipo = "";
+
+        for res in self.reservations:
+            tempRes = self.reservations[res]
+            if res[0] == id and tempRes[0] == requester:
+                oldDate = res[1]
+                oldStart_time = res[2]
+                oldEnd_time = res[3]
+                oldTipo = res[4]
+                description = tempRes[1]
+                break
+
+        if description == "":
+            print(f"No reservation found with data: ID: {id} by {requester}")
+            return
+        else:
+            del self.reservations[(id, oldDate, oldStart_time, oldEnd_time, oldTipo)]
+
+        if self.is_valid_time(newStart_time, newEnd_time):
+            if not self.is_overlapping(id, newDate, newStart_time, newEnd_time, newTipo):
+                # Validación de duración máxima permitida
+                if self.is_within_max_duration(newStart_time, newEnd_time):
+                    self.reservations[(id, newDate, newStart_time, newEnd_time, newTipo)] = (requester, description)
+                    self.save_reservations()
+                    print(f"Reprogrammed: {id} on {newDate} from {newStart_time} to {newEnd_time} by {requester} in {newTipo} with description: {description}")
+                else:
+                    print(f"Error: Can't repogram reservation, duration exceeds maximum allowed ({self.MAX_RESERVATION_HOURS} hours): {id} on {newDate} from {newStart_time} to {newEnd_time} by {requester}")
+            else:
+                print(f"Error: Can't reprogram reservation, overlaps with an existing reservation in {newTipo} on {newDate} from {newStart_time} to {newEnd_time}")
+        else:
+            print(f"Error: Can't reprogram reservation, invalid time range '{newStart_time} to {newEnd_time}' for reservation on {newDate} by {requester}")
+
     def is_valid_time(self, start_time, end_time):
         try:
             start_hour, start_minute = map(int, start_time.split(':'))
