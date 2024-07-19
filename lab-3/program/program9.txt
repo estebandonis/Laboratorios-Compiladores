@@ -1,0 +1,13 @@
+RESERVAR Sala1 TIPO "Sala de Conferencias" PARA 30/06/2024 DE 09:00 A 11:00 POR Juan DESCRIPCION "Reunion de planificacion"
+RESERVAR Sala1 TIPO "Sala de Vestuario" PARA 30/06/2024 DE 10:00 A 12:00 POR Vilma DESCRIPCION "Fiesta"
+RESERVAR Sala2 TIPO "Sala de Vestuario" PARA 30/06/2024 DE 11:00 A 13:00 POR Maria DESCRIPCION "Presentacion de resultados"
+RESERVAR Sala2 TIPO "Sala de Vestuario" PARA 02/07/2024 DE 39:00 A 40:00 POR Danilo DESCRIPCION "Navidad"
+RESERVAR Sala3 TIPO "Sala de Conferencias" PARA 30/06/2024 DE 10:00 A 12:00 POR Carlos DESCRIPCION "Taller de desarrollo"
+CANCELAR Sala1 TIPO "Salon de Eventos" PARA 30/06/2024 DE 09:00 A 11:00 POR Juan
+RESERVAR Sala4 TIPO "Salon de Capacitacion" PARA 24/07/2024 DE 08:00 A 13:00 POR Ana DESCRIPCION "Sesion de capacitacion"
+RESERVAR Sala5 TIPO "Sala de Vestuario" PARA 23/07/2024 DE 09:00 A 14:30 POR Pedro DESCRIPCION "Entrenamiento avanzado"
+
+RESERVAR Ascenso TIPO "Sala de Eventos" PARA 19/06/2024 DE 09:00 A 12:30 POR Juana DESCRIPCION "Fiesta del Ascenso de Pedro Luis"
+RESERVAR Capacitacion TIPO "Sala de Capacitacion" PARA 19/06/2024 DE 14:00 A 16:00 POR Caibe DESCRIPCION "Seminario para el exito por Caibes"
+RESERVAR Pelicula TIPO "Sala de Vestuarios" PARA 20/06/2024 DE 10:00 A 12:30 POR Eduardo DESCRIPCION "Revision de Vestuarios para Pelicula Matrix"
+RESERVAR SesionEstudio TIPO "Sala Ejecutiva" PARA 20/06/2024 DE 15:00 A 17:00 POR Mercedes DESCRIPCION "Sesion de preparacion para finales"

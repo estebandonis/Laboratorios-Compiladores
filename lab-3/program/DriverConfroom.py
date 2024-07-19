@@ -107,6 +107,20 @@ class ConfRoomScheduler(ConfRoomSchedulerListener):
             for (id, date, start_time, end_time, tipo), (requester, description) in self.reservations.items():
                 print(f"- {id} in {tipo} on {date} from {start_time} to {end_time} by {requester} with description: {description}")
 
+    def list_near_events(self):
+        current_date = "19/06/2024"
+
+        if not self.reservations:
+            print("No reservations found.")
+        else:
+            print("")
+            print("Near events:")
+            for (id, date, start_time, end_time, tipo), (requester, description) in self.reservations.items():
+                if date == current_date or (int(date[0:2]) == int(current_date[0:2]) + 1 and int(date[3:5]) == int(current_date[3:5]) and int(date[6:10]) == int(current_date[6:10])):
+                    print(f"- {id} in {tipo} on {date} from {start_time} to {end_time} by {requester} with description: {description}")
+            
+            print("")
+
 
 def main(argv):
     if len(argv) < 2:
@@ -114,11 +128,6 @@ def main(argv):
         return
 
     input_file = argv[1]
-
-    # NewReservations = {}
-
-    # with open('reservations.pkl', 'wb') as f:
-    #     pickle.dump(NewReservations, f)
 
     try:
         input_stream = FileStream(input_file)
@@ -139,6 +148,7 @@ def main(argv):
     walker.walk(scheduler, tree)
 
     # After processing commands, list existing reservations
+    scheduler.list_near_events()
     scheduler.list_reservations()
 
 if __name__ == '__main__':
